@@ -2,10 +2,13 @@ import 'package:Openbook/models/circle.dart';
 import 'package:Openbook/models/community.dart';
 import 'package:Openbook/models/follows_list.dart';
 import 'package:Openbook/models/post.dart';
+import 'package:Openbook/models/post_comment.dart';
 import 'package:Openbook/models/post_reaction.dart';
 import 'package:Openbook/models/user.dart';
+import 'package:Openbook/pages/home/bottom_sheets/post_actions.dart';
 import 'package:Openbook/pages/home/modals/invite_to_community.dart';
 import 'package:Openbook/pages/home/modals/post_actions/report_post.dart';
+import 'package:Openbook/pages/home/modals/post_actions/report_post_comment.dart';
 import 'package:Openbook/pages/home/pages/community/pages/manage_community/pages/community_administrators/modals/add_community_administrator/add_community_administrator.dart';
 import 'package:Openbook/pages/home/modals/create_post/create_post.dart';
 import 'package:Openbook/pages/home/modals/edit_user_profile/edit_user_profile.dart';
@@ -248,6 +251,19 @@ class ModalService {
         fullscreenDialog: true,
         builder: (BuildContext context) => Material(
           child: OBReportPostModal(reportedPost: reportedPost, onPostReported: onPostReported),
+        )));
+  }
+
+  Future<void> openReportPostComment(
+      {@required Post reportedPost, PostComment reportedPostComment, @required onPostCommentReported, @required BuildContext context}) async {
+    Navigator.of(context, rootNavigator: true)
+        .push(CupertinoPageRoute<PostReaction>(
+        fullscreenDialog: true,
+        builder: (BuildContext context) => Material(
+          child: OBReportPostCommentModal(
+              reportedPost: reportedPost,
+              reportedPostComment: reportedPostComment,
+              onPostCommentReported: onPostCommentReported),
         )));
   }
 

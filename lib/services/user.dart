@@ -22,6 +22,7 @@ import 'package:Openbook/models/notifications/notifications_list.dart';
 import 'package:Openbook/models/post.dart';
 import 'package:Openbook/models/post_comment.dart';
 import 'package:Openbook/models/post_comment_list.dart';
+import 'package:Openbook/models/post_comment_report.dart';
 import 'package:Openbook/models/post_reaction.dart';
 import 'package:Openbook/models/post_reaction_list.dart';
 import 'package:Openbook/models/post_reactions_emoji_count_list.dart';
@@ -43,6 +44,7 @@ import 'package:Openbook/services/follows_api.dart';
 import 'package:Openbook/services/httpie.dart';
 import 'package:Openbook/services/follows_lists_api.dart';
 import 'package:Openbook/services/notifications_api.dart';
+import 'package:Openbook/services/post_comment_reports_api.dart';
 import 'package:Openbook/services/post_reports_api.dart';
 import 'package:Openbook/services/posts_api.dart';
 import 'package:Openbook/services/storage.dart';
@@ -72,6 +74,7 @@ class UserService {
   NotificationsApiService _notificationsApiService;
   DevicesApiService _devicesApiService;
   PostReportsApiService _postReportsApiService;
+  PostCommentReportsApiService _postCommentReportsApiService;
 
   // If this is null, means user logged out.
   Stream<User> get loggedInUserChange => _loggedInUserChangeSubject.stream;
@@ -139,6 +142,10 @@ class UserService {
 
   void setPostReportsApiService(PostReportsApiService postReportsApiService) {
     _postReportsApiService = postReportsApiService;
+  }
+
+  void setPostCommentReportsApiService(PostCommentReportsApiService postCommentReportsApiService) {
+    _postCommentReportsApiService = postCommentReportsApiService;
   }
 
   Future<void> deleteAccountWithPassword(String password) async {
@@ -645,6 +652,13 @@ class UserService {
     return PostsList.fromJson(json.decode(response.body));
   }
 
+  Future<PostCommentList> getReportedPostCommentsForCommunity(Community community) async {
+    HttpieResponse response = await _postCommentReportsApiService
+        .getReportedPostCommentsForCommunityWithName(community.name);
+    _checkResponseIsOk(response);
+    return PostCommentList.fromJson(json.decode(response.body));
+  }
+
   Future<Community> createCommunity(
       {@required String name,
       @required String title,
@@ -1031,6 +1045,13 @@ class UserService {
     return ReportCategoriesList.fromJson(json.decode(response.body));
   }
 
+  Future<ReportCategoriesList> getReportCategoriesForComments() async {
+    HttpieResponse response = await _postCommentReportsApiService.getReportCategories();
+    _checkResponseIsOk(response);
+
+    return ReportCategoriesList.fromJson(json.decode(response.body));
+  }
+
   Future<CategoriesList> getCategories() async {
     HttpieResponse response = await _categoriesApiService.getCategories();
     _checkResponseIsOk(response);
@@ -1244,6 +1265,50 @@ class UserService {
     _checkResponseIsOk(response);
     String responseBody = response.body;
     return PostReport.fromJson(json.decode(responseBody));
+  }
+
+  Future<PostCommentReport> createPostCommentReport(
+      {@required String postUuid,
+       @required int postCommentId,
+       @required String categoryName,
+        String comment,
+      }) async {
+
+    HttpieStreamedResponse response = await _postCommentReportsApiService.createPostCommentReport(
+        postUuid: postUuid,
+        postCommentId: postCommentId,
+        categoryName: categoryName,
+        comment: comment);
+
+    _checkResponseIsCreated(response);
+    String responseBody = await response.readAsString();
+    return PostCommentReport.fromJson(json.decode(responseBody));
+  }
+
+  Future<PostCommentReport> confirmPostCommentReport(
+      {@required Post post,
+        @required PostComment postComment,
+        @required PostCommentReport report,
+      }) async {
+    HttpieResponse response =
+    await _postCommentReportsApiService.confirmPostCommentReport(post.uuid, postComment.id, report.id);
+
+    _checkResponseIsOk(response);
+    String responseBody = response.body;
+    return PostCommentReport.fromJson(json.decode(responseBody));
+  }
+
+  Future<PostCommentReport> rejectPostCommentReport(
+      {@required Post post,
+        @required PostComment postComment,
+        @required PostCommentReport report,
+      }) async {
+    HttpieResponse response =
+    await _postCommentReportsApiService.rejectPostCommentReport(post.uuid, postComment.id, report.id);
+
+    _checkResponseIsOk(response);
+    String responseBody = response.body;
+    return PostCommentReport.fromJson(json.decode(responseBody));
   }
 
   Future<User> _setUserWithData(String userData) async {

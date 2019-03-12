@@ -3,6 +3,7 @@ import 'package:Openbook/models/community.dart';
 import 'package:Openbook/models/emoji.dart';
 import 'package:Openbook/models/follows_list.dart';
 import 'package:Openbook/models/post.dart';
+import 'package:Openbook/models/post_comment.dart';
 import 'package:Openbook/models/post_reactions_emoji_count.dart';
 import 'package:Openbook/models/report_category.dart';
 import 'package:Openbook/models/user.dart';
@@ -33,6 +34,7 @@ import 'package:Openbook/pages/home/pages/post/post.dart';
 import 'package:Openbook/pages/home/pages/post_comments/post.dart';
 import 'package:Openbook/pages/home/pages/profile/profile.dart';
 import 'package:Openbook/widgets/nav_bars/themed_nav_bar.dart';
+import 'package:Openbook/widgets/post/pages/report_post_comment_page.dart';
 import 'package:Openbook/widgets/post/pages/report_post_page.dart';
 import 'package:Openbook/widgets/routes/slide_right_route.dart';
 import 'package:Openbook/widgets/theming/primary_color_container.dart';
@@ -340,6 +342,23 @@ class NavigationService {
         OBSlideRightRoute(
             key: Key('obSlideReportPostFormPage'),
             widget: OBReportPostPage(reportedPost: post, reportedCategory: category,)
+        )
+    );
+  }
+
+  Future navigateToReportPostCommentForm(
+      {@required Post post,
+       @required PostComment postComment,
+        @required ReportCategory category,
+        @required BuildContext context}) async {
+    return Navigator.push(
+        context,
+        OBSlideRightRoute(
+            key: Key('obSlideReportPostCommentFormPage'),
+            widget: OBReportPostCommentPage(
+              reportedPost: post,
+              reportedPostComment: postComment,
+              reportedCategory: category,)
         )
     );
   }
