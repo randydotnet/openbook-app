@@ -2,8 +2,10 @@ import 'package:Openbook/models/community.dart';
 import 'package:Openbook/models/post.dart';
 import 'package:Openbook/models/post_comment.dart';
 import 'package:Openbook/models/user.dart';
+import 'package:Openbook/pages/home/bottom_sheets/post_actions.dart';
 import 'package:Openbook/pages/home/pages/post_comments/widgets/post_comment/packages/post_comment_text.dart';
 import 'package:Openbook/provider.dart';
+import 'package:Openbook/services/modal_service.dart';
 import 'package:Openbook/services/navigation_service.dart';
 import 'package:Openbook/services/toast.dart';
 import 'package:Openbook/services/user.dart';
@@ -35,6 +37,7 @@ class OBExpandedPostComment extends StatefulWidget {
 class OBExpandedPostCommentState extends State<OBExpandedPostComment> {
   bool _requestInProgress;
   UserService _userService;
+  ModalService _modalService;
   ToastService _toastService;
   NavigationService _navigationService;
 
@@ -48,6 +51,7 @@ class OBExpandedPostCommentState extends State<OBExpandedPostComment> {
   Widget build(BuildContext context) {
     var provider = OpenbookProvider.of(context);
     _userService = provider.userService;
+    _modalService = provider.modalService;
     _toastService = provider.toastService;
     _navigationService = provider.navigationService;
 
@@ -92,6 +96,26 @@ class OBExpandedPostCommentState extends State<OBExpandedPostComment> {
             color: Colors.red,
             icon: Icons.delete,
             onTap: _deletePostComment,
+          ),
+          new IconSlideAction(
+            caption: 'Report Post',
+            color: Colors.blueGrey,
+            icon: Icons.report,
+            onTap: _reportPostComment,
+          ),
+        ],
+      );
+    } else {
+      postTile = Slidable(
+        delegate: new SlidableDrawerDelegate(),
+        actionExtentRatio: 0.25,
+        child: postTile,
+        secondaryActions: <Widget>[
+          new IconSlideAction(
+            caption: 'Report Post',
+            color: Colors.blueGrey,
+            icon: Icons.report,
+            onTap: _reportPostComment,
           ),
         ],
       );
@@ -204,6 +228,18 @@ class OBExpandedPostCommentState extends State<OBExpandedPostComment> {
     } finally {
       _setRequestInProgress(false);
     }
+  }
+
+  void _onPostCommentReported (PostComment postComment) {
+    _toastService.success(message: 'Comment reported successfully', context: context);
+  }
+
+  void _reportPostComment() async {
+    await _modalService.openReportPostComment(
+        reportedPost: widget.post,
+        reportedPostComment: widget.postComment,
+        onPostCommentReported: _onPostCommentReported,
+        context: context);
   }
 
   void _onError(error) async {

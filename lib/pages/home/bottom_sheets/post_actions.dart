@@ -1,5 +1,6 @@
 import 'package:Openbook/models/community.dart';
 import 'package:Openbook/models/post.dart';
+import 'package:Openbook/models/post_comment.dart';
 import 'package:Openbook/models/user.dart';
 import 'package:Openbook/provider.dart';
 import 'package:Openbook/services/modal_service.dart';
@@ -136,4 +137,5 @@ class OBPostActionsBottomSheetState extends State<OBPostActionsBottomSheet> {
 }
 
 typedef OnPostReported(Post post);
+typedef OnPostCommentReported(PostComment postComment);
 typedef OnPostDeleted(Post post);
