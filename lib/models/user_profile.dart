@@ -51,6 +51,10 @@ class UserProfile {
     if (json.containsKey('location')) location = json['location'];
     if (json.containsKey('followers_count_visible'))
       followersCountVisible = json['followers_count_visible'];
+    if (json.containsKey('badges')) {
+      List<dynamic> rawBadges = json['badges'];
+      badges = rawBadges.map((badgeJson) => Badge.fromJson(badgeJson)).toList();
+    }
   }
 
   bool hasLocation() {
