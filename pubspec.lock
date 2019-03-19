@@ -133,7 +133,7 @@ packages:
       name: flutter_advanced_networkimage
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.13"
+    version: "0.4.14"
   flutter_cache_manager:
     dependency: "direct main"
     description:
@@ -194,7 +194,7 @@ packages:
       name: flutter_svg
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.11.0+1"
+    version: "0.12.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
