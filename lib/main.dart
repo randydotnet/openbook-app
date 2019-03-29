@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return OpenbookProvider(
       key: openbookProviderKey,
-      child: OBToast(
+      child: OpenbookToast(
         child: MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Openbook',

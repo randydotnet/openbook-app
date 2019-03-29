@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:Openbook/models/push_notification.dart';
+import 'package:Openbook/models/push_notifications/push_notification.dart';
 import 'package:Openbook/pages/home/lib/poppable_page_controller.dart';
 import 'package:Openbook/services/intercom.dart';
 import 'package:Openbook/services/push_notifications/push_notifications.dart';
@@ -204,7 +204,6 @@ class OBHomePageState extends State<OBHomePage> with WidgetsBindingObserver {
         }
 
         if (tappedTab == OBHomePageTabs.notifications) {
-          _notificationsPageController.setIsActivePage(true);
           if (currentTab == OBHomePageTabs.notifications) {
             if (_notificationsPageController.isFirstRoute()) {
               _notificationsPageController.scrollToTop();
@@ -212,8 +211,6 @@ class OBHomePageState extends State<OBHomePage> with WidgetsBindingObserver {
               _notificationsPageController.popUntilFirstRoute();
             }
           }
-        } else {
-          _notificationsPageController.setIsActivePage(false);
         }
 
         if (tappedTab == OBHomePageTabs.menu &&
@@ -349,21 +346,13 @@ class OBHomePageState extends State<OBHomePage> with WidgetsBindingObserver {
         throw 'No tab controller to pop';
     }
 
-    bool canPopRoute = currentTabController.canPop();
-    bool preventCloseApp = false;
+    bool stopDefault = currentTabController.canPop();
 
-    if (canPopRoute) {
+    if (stopDefault) {
       currentTabController.pop();
-      // Stop default
-      preventCloseApp = true;
-    } else if (currentTab != OBHomePageTabs.timeline) {
-//      print('Navigating to timeline');
-//      _navigateToTab(OBHomePageTabs.timeline);
-//      preventCloseApp = true;
     }
 
-    // Close the app
-    return preventCloseApp;
+    return stopDefault;
   }
 
   void _onLoggedInUserChange(User newUser) async {
@@ -401,20 +390,10 @@ class OBHomePageState extends State<OBHomePage> with WidgetsBindingObserver {
 
   void _onPushNotificationOpened(
       PushNotificationOpenedResult pushNotificationOpenedResult) {
-    //_navigateToTab(OBHomePageTabs.notifications);
-  }
-
-  void _navigateToTab(OBHomePageTabs tab) {
-    int newIndex = OBHomePageTabs.values.indexOf(tab);
+    // int newIndex = OBHomePageTabs.values.indexOf(OBHomePageTabs.notifications);
     // This only works once... bug with flutter.
     // Reported it here https://github.com/flutter/flutter/issues/28992
-    _setCurrentIndex(newIndex);
-  }
-
-  void _setCurrentIndex(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+    //_setCurrentIndex(newIndex);
   }
 
   @override

@@ -12,7 +12,6 @@ class OBCommunityRules extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: community.updateSubject,
-      initialData: community,
       builder: (BuildContext context, AsyncSnapshot<Community> snapshot) {
         var community = snapshot.data;
 

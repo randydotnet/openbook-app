@@ -43,7 +43,7 @@ class OBJoinCommunityButtonState extends State<OBJoinCommunityButton> {
 
         bool isCreator = community.isCreator ?? true;
 
-        if (isCreator) return SizedBox();
+        if (community == null || isCreator) return SizedBox();
 
         bool isInvited = community.isInvited ?? false;
 

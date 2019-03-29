@@ -108,14 +108,11 @@ class PostsApiService {
   }
 
   Future<HttpieResponse> getCommentsForPostWithUuid(String postUuid,
-      {int countMax, int maxId, int countMin, int minId, String sort}) {
+      {int count, int maxId}) {
     Map<String, dynamic> queryParams = {};
-    if (countMax != null) queryParams['count_max'] = countMax;
-    if (countMin != null) queryParams['count_min'] = countMin;
+    if (count != null) queryParams['count'] = count;
 
     if (maxId != null) queryParams['max_id'] = maxId;
-    if (minId != null) queryParams['min_id'] = minId;
-    if (sort != null) queryParams['sort'] = sort;
 
     String path = _makeGetPostCommentsPath(postUuid);
 
@@ -207,8 +204,7 @@ class PostsApiService {
   }
 
   String _makeUnmutePostPath(String postUuid) {
-    return _stringTemplateService
-        .parse(UNMUTE_POST_PATH, {'postUuid': postUuid});
+    return _stringTemplateService.parse(UNMUTE_POST_PATH, {'postUuid': postUuid});
   }
 
   String _makeCommentPostPath(String postUuid) {
