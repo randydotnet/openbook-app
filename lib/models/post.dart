@@ -281,7 +281,7 @@ class Post extends UpdatableModel<Post> {
 class PostFactory extends UpdatableModelFactory<Post> {
   @override
   SimpleCache<int, Post> cache =
-      LruCache(storage: UpdatableModelSimpleStorage(size: 250));
+      LruCache(storage: UpdatableModelSimpleStorage(size: 100));
 
   @override
   Post makeFromJson(Map json) {
