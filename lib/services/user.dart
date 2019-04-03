@@ -444,20 +444,9 @@ class UserService {
   }
 
   Future<PostCommentList> getCommentsForPost(Post post,
-      {int maxId,
-      int countMax,
-      int minId,
-      int countMin,
-      PostCommentsSortType sort}) async {
-    HttpieResponse response = await _postsApiService.getCommentsForPostWithUuid(
-        post.uuid,
-        countMax: countMax,
-        maxId: maxId,
-        countMin: countMin,
-        minId: minId,
-        sort: sort != null
-            ? PostComment.convertPostCommentSortTypeToString(sort)
-            : null);
+      {int count, int maxId}) async {
+    HttpieResponse response = await _postsApiService
+        .getCommentsForPostWithUuid(post.uuid, count: count, maxId: maxId);
 
     _checkResponseIsOk(response);
     return PostCommentList.fromJson(json.decode(response.body));
@@ -1072,13 +1061,6 @@ class UserService {
         maxId: maxId, count: count);
     _checkResponseIsOk(response);
     return NotificationsList.fromJson(json.decode(response.body));
-  }
-
-  Future<OBNotification> getNotificationWithId(int notificationId) async {
-    HttpieResponse response =
-        await _notificationsApiService.getNotificationWithId(notificationId);
-    _checkResponseIsOk(response);
-    return OBNotification.fromJSON(json.decode(response.body));
   }
 
   Future<void> readNotifications({int maxId}) async {

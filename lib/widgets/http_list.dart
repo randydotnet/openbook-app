@@ -63,8 +63,6 @@ class OBHttpListState<T> extends State<OBHttpList<T>> {
 
   StreamSubscription<List<T>> _searchRequestSubscription;
 
-  ScrollPhysics noItemsPhysics = const AlwaysScrollableScrollPhysics();
-
   @override
   void initState() {
     super.initState();
@@ -80,10 +78,10 @@ class OBHttpListState<T> extends State<OBHttpList<T>> {
     _searchQuery = '';
   }
 
-  void insertListItem(T listItem, {bool shouldScrollToTop = true}) {
+  void insertListItem(T listItem) {
     this._list.insert(0, listItem);
     this._setList(this._list.toList());
-    if (shouldScrollToTop) scrollToTop();
+    scrollToTop();
   }
 
   void removeListItem(T listItem) {
@@ -136,8 +134,6 @@ class OBHttpListState<T> extends State<OBHttpList<T>> {
   Widget _buildSearchResultsList() {
     int listItemCount = _listSearchResults.length + 1;
 
-    ScrollPhysics physics = listItemCount > 0 ? widget.physics : noItemsPhysics;
-
     return NotificationListener(
       onNotification: (ScrollNotification notification) {
         // Hide keyboard
@@ -148,12 +144,12 @@ class OBHttpListState<T> extends State<OBHttpList<T>> {
           ? ListView.separated(
               separatorBuilder: widget.separatorBuilder,
               padding: widget.padding,
-              physics: physics,
+              physics: widget.physics,
               itemCount: listItemCount,
               itemBuilder: _buildSearchResultsListItem)
           : ListView.builder(
               padding: widget.padding,
-              physics: physics,
+              physics: widget.physics,
               itemCount: listItemCount,
               itemBuilder: _buildSearchResultsListItem),
     );
@@ -245,17 +241,6 @@ class OBHttpListState<T> extends State<OBHttpList<T>> {
       _onError(error);
     } finally {
       _setRefreshInProgress(false);
-    }
-  }
-
-  Future refreshList(
-      {bool shouldScrollToTop = false,
-      bool shouldUseRefreshIndicator = false}) async {
-    await (shouldUseRefreshIndicator
-        ? _listRefreshIndicatorKey.currentState.show()
-        : _refreshList());
-    if (shouldScrollToTop && _listScrollController.offset != 0) {
-      scrollToTop();
     }
   }
 
@@ -377,9 +362,9 @@ class OBHttpListController<T> {
     _state = state;
   }
 
-  void insertListItem(T listItem, {bool shouldScrollToTop = true}) {
+  void insertListItem(T listItem) {
     if (!_isAttached() || !_state.mounted) return;
-    _state.insertListItem(listItem, shouldScrollToTop: shouldScrollToTop);
+    _state.insertListItem(listItem);
   }
 
   void removeListItem(T listItem) {
@@ -392,16 +377,12 @@ class OBHttpListController<T> {
     _state.scrollToTop();
   }
 
-  Future refresh(
-      {bool shouldScrollToTop = false,
-      bool shouldUseRefreshIndicator = false}) async {
+  Future refresh() async {
     if (!_state.mounted) return;
-    _state.refreshList(
-        shouldScrollToTop: shouldScrollToTop,
-        shouldUseRefreshIndicator: shouldUseRefreshIndicator);
+    _state._refreshList();
   }
 
-  bool hasItems() {
+  bool hasItems(){
     return _state._list.isNotEmpty;
   }
 

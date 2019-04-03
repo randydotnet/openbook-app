@@ -123,8 +123,6 @@ class NotificationFactory extends UpdatableModelFactory<OBNotification> {
 
   dynamic parseContentObject(
       {@required Map contentObjectData, @required NotificationType type}) {
-    if (contentObjectData == null) return null;
-
     dynamic contentObject;
     switch (type) {
       case NotificationType.connectionConfirmed:

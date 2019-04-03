@@ -13,9 +13,10 @@ class OBProfileNavBar extends StatelessWidget
   Widget build(BuildContext context) {
     return StreamBuilder(
         stream: user.updateSubject,
-        initialData: user,
         builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
           var user = snapshot.data;
+
+          if (user == null) return const SizedBox();
           return OBThemedNavigationBar(
             title: '@' + user.username,
           );

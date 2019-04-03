@@ -30,7 +30,6 @@ import 'package:Openbook/services/theme_value_parser.dart';
 import 'package:Openbook/services/toast.dart';
 import 'package:Openbook/services/url_launcher.dart';
 import 'package:Openbook/services/user.dart';
-import 'package:Openbook/services/user_preferences.dart';
 import 'package:Openbook/services/utils_service.dart';
 import 'package:Openbook/services/validation.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +56,6 @@ class OpenbookProvider extends StatefulWidget {
 }
 
 class OpenbookProviderState extends State<OpenbookProvider> {
-  UserPreferencesService userPreferencesService = UserPreferencesService();
   CreateAccountBloc createAccountBloc = CreateAccountBloc();
   ValidationService validationService = ValidationService();
   HttpieService httpService = HttpieService();
@@ -102,7 +100,6 @@ class OpenbookProviderState extends State<OpenbookProvider> {
     super.initState();
     initAsyncState();
     imageCache.maximumSize = 200 << 20; // 200MB
-    userPreferencesService.setStorageService(storageService);
     connectionsCirclesApiService.setHttpService(httpService);
     httpService.setUtilsService(utilsService);
     connectionsCirclesApiService

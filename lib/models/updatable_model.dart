@@ -10,7 +10,9 @@ abstract class UpdatableModel<T> {
   Stream<T> get updateSubject => _updateChangeSubject.stream;
   final _updateChangeSubject = BehaviorSubject<T>();
 
-  UpdatableModel({this.id});
+  UpdatableModel({this.id}) {
+    notifyUpdate();
+  }
 
   void notifyUpdate() {
     _updateChangeSubject.add(this as T);

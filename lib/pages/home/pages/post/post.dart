@@ -63,7 +63,6 @@ class OBPostPageState extends State<OBPostPage> {
                       children: <Widget>[
                         StreamBuilder(
                             stream: widget.post.updateSubject,
-                            initialData: widget.post,
                             builder: _buildPost)
                       ],
                     ),
@@ -76,6 +75,7 @@ class OBPostPageState extends State<OBPostPage> {
 
   Widget _buildPost(BuildContext context, AsyncSnapshot<Post> snapshot) {
     Post latestPost = snapshot.data;
+    if (latestPost == null) return const SizedBox();
 
     return OBPost(
       latestPost,

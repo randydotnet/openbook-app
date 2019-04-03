@@ -37,7 +37,7 @@ class OBPostReactionNotificationTile extends StatelessWidget {
           image: AdvancedNetworkImage(post.getImage(), useDiskCache: true),
           height: postImagePreviewSize,
           width: postImagePreviewSize,
-          fit: BoxFit.cover,
+          fit: BoxFit.fill,
         ),
       );
     }
@@ -61,8 +61,7 @@ class OBPostReactionNotificationTile extends StatelessWidget {
         size: OBAvatarSize.medium,
         avatarUrl: postReaction.reactor.getProfileAvatar(),
       ),
-      title: Wrap(
-        crossAxisAlignment: WrapCrossAlignment.center,
+      title: Row(
         children: <Widget>[
           OBActionableSmartText(
             text: '@$postReactorUsername reacted:',

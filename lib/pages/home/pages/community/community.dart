@@ -100,10 +100,11 @@ class OBCommunityPageState extends State<OBCommunityPage>
               Expanded(
                 child: StreamBuilder(
                     stream: widget.community.updateSubject,
-                    initialData: widget.community,
                     builder: (BuildContext context,
                         AsyncSnapshot<Community> snapshot) {
                       Community latestCommunity = snapshot.data;
+
+                      if (latestCommunity == null) return const SizedBox();
 
                       bool communityIsPrivate = latestCommunity.isPrivate();
 
@@ -362,8 +363,7 @@ class OBCommunityPageState extends State<OBCommunityPage>
   Future<List<Post>> _loadMorePosts(int pageIndex) async {
     // Part of nasty hack to insert items, see top of file
     if (_createdPostToInsertOnNextRefresh != null) {
-      List<Post> currentPosts =
-          _posts.isNotEmpty ? _posts.take(pageWiseSize - 1).toList() : [];
+      List<Post> currentPosts = _posts.isNotEmpty ? _posts.take(pageWiseSize - 1).toList() : [];
       currentPosts.insert(0, _createdPostToInsertOnNextRefresh);
       _posts = currentPosts;
       _createdPostToInsertOnNextRefresh = null;

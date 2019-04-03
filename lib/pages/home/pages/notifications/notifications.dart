@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:Openbook/models/notifications/notification.dart';
 import 'package:Openbook/models/notifications/notifications_list.dart';
-import 'package:Openbook/models/push_notification.dart';
+import 'package:Openbook/models/push_notifications/push_notification.dart';
 import 'package:Openbook/pages/home/lib/poppable_page_controller.dart';
 import 'package:Openbook/provider.dart';
 import 'package:Openbook/services/navigation_service.dart';
@@ -39,10 +39,9 @@ class OBNotificationsPageState extends State<OBNotificationsPage>
   PushNotificationsService _pushNotificationsService;
   OBHttpListController<OBNotification> _notificationsListController;
   StreamSubscription _pushNotificationSubscription;
-  OBNotificationsPageController _controller;
 
   bool _needsBootstrap;
-  bool _isActivePage;
+  bool _isFirstNotificationsRefresh;
 
   // Should be the case when the page is visible to the user
   bool _shouldMarkNotificationsAsRead;
@@ -52,12 +51,12 @@ class OBNotificationsPageState extends State<OBNotificationsPage>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _notificationsListController = OBHttpListController();
-    _controller = widget.controller ?? OBNotificationsPage();
-    _controller.attach(state: this, context: context);
+    if (widget.controller != null)
+      widget.controller.attach(state: this, context: context);
 
     _needsBootstrap = true;
     _shouldMarkNotificationsAsRead = true;
-    if (_isActivePage == null) _isActivePage = false;
+    _isFirstNotificationsRefresh = true;
   }
 
   @override
@@ -72,21 +71,6 @@ class OBNotificationsPageState extends State<OBNotificationsPage>
       _needsBootstrap = false;
     }
 
-    List<Widget> stackItems = [
-      OBPrimaryColorContainer(
-        child: OBHttpList(
-          key: Key('notificationsList'),
-          controller: _notificationsListController,
-          listRefresher: _refreshNotifications,
-          listOnScrollLoader: _loadMoreNotifications,
-          listItemBuilder: _buildNotification,
-          resourceSingularName: 'notification',
-          resourcePluralName: 'notifications',
-          physics: const ClampingScrollPhysics(),
-        ),
-      ),
-    ];
-
     return CupertinoPageScaffold(
         navigationBar: OBThemedNavigationBar(
           title: 'Notifications',
@@ -96,8 +80,16 @@ class OBNotificationsPageState extends State<OBNotificationsPage>
             onPressed: _onWantsToConfigureNotifications,
           ),
         ),
-        child: Stack(
-          children: stackItems,
+        child: OBPrimaryColorContainer(
+          child: OBHttpList(
+            controller: _notificationsListController,
+            listRefresher: _refreshNotifications,
+            listOnScrollLoader: _loadMoreNotifications,
+            listItemBuilder: _buildNotification,
+            resourceSingularName: 'notification',
+            resourcePluralName: 'notifications',
+            physics: const AlwaysScrollableScrollPhysics(),
+          ),
         ));
   }
 
@@ -111,15 +103,8 @@ class OBNotificationsPageState extends State<OBNotificationsPage>
     _notificationsListController.scrollToTop();
   }
 
-  void setIsActivePage(bool isActivePage) {
-    setState(() {
-      _isActivePage = isActivePage;
-    });
-  }
-
   Widget _buildNotification(BuildContext context, OBNotification notification) {
     return OBNotificationTile(
-      key: Key(notification.id.toString()),
       notification: notification,
       onNotificationTileDeleted: _onNotificationTileDeleted,
       onPressed: _markNotificationAsRead,
@@ -187,61 +172,19 @@ class OBNotificationsPageState extends State<OBNotificationsPage>
   }
 
   void _onPushNotification(PushNotification pushNotification) {
-    bool isNavigating = _controller.canPop();
-
-    if (!_isActivePage || isNavigating) {
-      _triggerRefreshNotifications(shouldScrollToTop: true);
-    } else {
-      _showRefreshNotificationsToast();
-    }
-  }
-
-  void _showRefreshNotificationsToast() {
-    _toastService.info(
-        duration: Duration(seconds: 2),
-        child: Row(
-          children: <Widget>[
-            const OBIcon(
-              OBIcons.arrowUpward,
-              color: Colors.white,
-              size: OBIconSize.small,
-            ),
-            const SizedBox(
-              width: 10,
-            ),
-            const Text(
-              'Load new notifications',
-              style: TextStyle(color: Colors.white),
-            )
-          ],
-          mainAxisSize: MainAxisSize.min,
-        ),
-        context: context,
-        onDismissed: () {
-          _triggerRefreshNotifications(
-              shouldScrollToTop: true,
-              shouldUseRefreshIndicator: true,
-              shouldMarkNotificationsAsRead: true);
-        });
+    _triggeRefreshNotifications();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
-      _triggerRefreshNotifications(
-          shouldScrollToTop: true, shouldUseRefreshIndicator: _isActivePage);
+      _triggeRefreshNotifications();
     }
   }
 
-  void _triggerRefreshNotifications({
-    bool shouldScrollToTop = false,
-    bool shouldUseRefreshIndicator = false,
-    bool shouldMarkNotificationsAsRead = false,
-  }) async {
-    _setShouldMarkNotificationsAsRead(shouldMarkNotificationsAsRead);
-    await _notificationsListController.refresh(
-        shouldScrollToTop: shouldScrollToTop,
-        shouldUseRefreshIndicator: shouldUseRefreshIndicator);
+  void _triggeRefreshNotifications() async {
+    _setShouldMarkNotificationsAsRead(false);
+    await _notificationsListController.refresh();
     _setShouldMarkNotificationsAsRead(true);
   }
 
@@ -267,7 +210,6 @@ class OBNotificationsPageState extends State<OBNotificationsPage>
 class OBNotificationsPageController extends PoppablePageController {
   OBNotificationsPageState _state;
   bool _markNotificationsAsRead;
-  bool _isActivePage;
 
   void attach(
       {@required BuildContext context, OBNotificationsPageState state}) {
@@ -275,17 +217,10 @@ class OBNotificationsPageController extends PoppablePageController {
     _state = state;
     if (_markNotificationsAsRead != null)
       _state._setShouldMarkNotificationsAsRead(_markNotificationsAsRead);
-
-    if (_isActivePage != null) _state.setIsActivePage(_isActivePage);
   }
 
   void scrollToTop() {
     _state.scrollToTop();
-  }
-
-  void setIsActivePage(bool isActivePage) {
-    if (_state != null) _state.setIsActivePage(isActivePage);
-    _isActivePage = isActivePage;
   }
 
   void setShouldMarkNotificationsAsRead(bool markNotificationsAsRead) {
